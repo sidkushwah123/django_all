@@ -1,0 +1,961 @@
+{% extends 'web/base-template.html' %}
+{% load static %}
+
+   {% block cssstyle %}
+
+<link rel="stylesheet" href='{% static "web/assets/image_zoom/dist/css/lightbox.css" %}'>
+<style type="text/css">
+  canvas {
+  background-color:#fff;
+  margin:50px;
+}
+</style>
+      {% endblock %}
+
+{% block content %}
+{% load static %}
+
+
+<!-----------Page Content Start------------->
+<div class="breadcrumbs">
+<div class="container">
+
+<a href="{% url 'home:home' %}" title="Go to Home Page"><i class="fa fa-home"></i></a>
+<span>/ </span>
+
+<strong>{{get_product_one_year.Product.Product_name}} ->
+ {% if get_product_one_year.Product.Vintage.all %}
+ |
+ {% for get_year in get_product_one_year.Product.Vintage.all %}
+<a href="{% url 'product_detail:product_detail' get_product_one_year.Product.Product_id get_product_one_year.Product.Product_slug  get_year %}"><u>{{get_year}}</u> |</a> 
+
+ {% endfor %}
+{% endif %}
+
+ ->({{get_product_one_year.Product.Bottel_Size}})  
+
+
+
+
+</strong>
+
+
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal_for_360" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{get_product_one_year.Product.Product_name}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <canvas id="360viewer" width="200" height="750"></canvas>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<section class="single-product-main">
+<div class="container">
+<div class="row">
+
+<div class="col-lg-5 col-sm-12 col-xs-12">
+  <div class="simpleLens-gallery-container" id="demo-1">
+    <div class="simpleLens-container">
+      <div class="simpleLens-big-image-container"> <a class="simpleLens-lens-image" href="{% if get_product_image.0.Image %} {{get_product_image.0.Image.url}} {% else %} {% static 'web/assets/image/shop/single-1.png' %} {% endif %}" data-lightbox="example-setc" data-title="{{get_product_one_year.Product.Product_name}}"> <img src="{% if get_product_image.0.Image %} {{get_product_image.0.Image.url}} {% else %} {% static 'web/assets/image/shop/single-1.png' %} {% endif %}" class="simpleLens-big-image"> </a> 
+        <span class="heartbox">
+{% if user.username == '' %}
+<i class="fa fa-heart-o"></i>
+{% else %}
+<a href="javascript:;" data-wishlist_url="{% url 'user_wishlist:add_wishlist' get_product_one_year.Product.id get_product_one_year.Product|get_product_vintage_yera_one  %}"  class="wishlist {{user|check_in_wish_list:get_product_one_year.Product}} product_id_{{get_product_one_year.id}}" data-prodcut_id="{{get_product_one_year.id}}" >{% if user|check_in_wish_list:get_product_one_year.Product == "" %} <i class="fa fa-heart-o"></i> {% else %}<i class="fa fa-heart"></i> {% endif %}</a>
+{% endif %}
+</span>
+      </div>
+    </div>
+    <div class="simpleLens-thumbnails-container"> 
+    	{% if get_product_image %}
+    	{% for items in get_product_image %}
+      <a class="simpleLens-thumbnail-wrapper" href="{{items.Image.url}}" data-lightbox="example-setc" data-title="{{get_product_one_year.Product.Product_name}}"><img src='{{items.Image.url}}' ></a>
+    	<!-- <a 
+               data-lens-image=''
+               data-big-image='{{items.Image.url}}'> <img src='{{items.Image.url}}' > </a>  -->
+           {% endfor %}    
+    	{% else %}
+{% endif %}
+
+{% if image_of_full_view %}
+<a class="simpleLens-thumbnail-wrapper" href="#" data-toggle="modal" data-target="#exampleModal_for_360"><img style="height: 170px;" src="{% static 'web/assets/image/360_image_view_icon.png' %}" ></a> 
+{% endif  %}
+
+
+
+           </div>
+  </div>
+</div>
+<div class="col-lg-7 col-sm-12 col-xs-12">
+  <div class="page-single-product-desc">
+<div class="product-name">
+    <h2>{{get_product_one_year.Product.Product_name}} {{get_product_one_year}}</h2>
+  </div>
+  
+<!-- add to card barival start-->
+<input type="hidden" id="product_year_{{get_product_one_year.Product.Product_id}}" name="" value="{{get_product_one_year}}">
+<input type="hidden" id="get_product_price_page" name="" value="{% url 'orders:get_product_price' %}">
+<input type="hidden" id="add_to_card_url" name="" value="{% url 'orders:add_to_card' %}">
+<input type="hidden" id="product_id" name="" value="{{get_product_one_year.Product.Product_id}}">
+<!-- add to card barival end-->
+
+
+{% if get_product_one_year.Bond_Cost > 0 %}
+  <div class="inbond">  	
+
+<form method="post" class="row">
+<div class="col-xs-7 col-sm-7 col-lg-7 no-padding">
+<div class="row">
+<div class="ib-dp-price col-xs-12 col-md-4">
+  {% if get_product_one_year.Bond_Descount_Cost > 0 %}
+<span class="regular-price" id="set_price_for_bond">${{get_product_one_year.Bond_Descount_Cost}}</span>
+{% else %}
+<span class="regular-price" id="set_price_for_bond">${{get_product_one_year.Bond_Cost}}</span>
+{% endif %}
+</div>
+<div class="product-type col-xs-12 col-md-8">
+<span>Delivered to Bond</span>
+<a class="tooltips">
+<span class="iconsprite question">?</span>
+<!-- <span class="tooltip on-top">
+We will only be able to deliver this product to a bonded account. But you can request to set one up at the Checkout. </span> -->
+</a>
+<div class="warehouse">
+<!-- Stock in nited Kingdom <p>Delivery to United Kingdom Storage: 25 Mar 2020</p> -->
+</div>
+</div>
+</div>
+</div>
+<div class="col-xs-5 col-sm-5 col-lg-5 add-to a-right">
+<div class="bottleboxx">
+<div class="guaranteed-stock-tip-cont">
+	{% if get_produuct_years_one_data %}
+<div id="guaranteed-stock-tip">Bottle/Case Format</div>
+
+<select class="quantity_select select_case_formate" data-type="Bond" style="width:100%;" id="case_formate_Bond">
+			
+			{% for items in get_produuct_years_one_data  %}
+			<option value="{{items.id}}">{{items.Bottle}}</option>
+			{% endfor %}
+			</select>
+			{% endif %}
+			</div>
+</div>
+<div class="qtybox">
+
+<select name="qty" id="quentyti_Bond">
+{% for i in get_product_one_year.Bond_Stock|times %}
+    <option>{{i}}</option>
+{% endfor %}
+</select>
+
+{% if get_product_one_year.Bond_Cost > 0 %}
+<button type="button" id="Bond_buy" data-order_type="c" data-order_id="" data-event_id="" title="Add To Order" data-product_id="{{get_product_one_year.Product.Product_id}}" data-cost_type="Bond"  class="button btn-cart change-ib-db add_to_card">
+Buy
+</button>
+{% else %}
+<button type="button" id="Bond_buy" disabled="true" data-cost_type="Bond" data-order_type="c" data-order_id="" data-event_id=""  data-product_id="{{get_product_one_year.Product.Product_id}}" title="Add To Order" class="add_to_card button btn-cart change-ib-db">
+Buy
+</button>
+{% endif %}
+
+</div>
+ </div>
+</form>
+</div>
+
+{% endif %}
+
+{% if get_product_one_year.Retail_Cost > 0 %}
+<div class="inbond">
+<form method="post" class="row">
+<div class="col-xs-7 col-sm-7 col-lg-7 no-padding">
+<div class="row">
+<div class="ib-dp-price col-xs-12 col-md-4">
+  
+<span class="regular-price" id="set_price_for_retail">
+{% if get_product_one_year.Descount_Cost > 0 %}
+${{get_product_one_year.Descount_Cost|floatformat:2}}</span>
+{% else %}
+${{get_product_one_year.Retail_Cost|floatformat:2}}</span>
+{% endif %}
+
+</div>
+<div class="product-type col-xs-12 col-md-8">
+<span>Retail Price (Inc. VAT)</span>
+
+<div class="warehouse">
+<!-- <p>Stock in United Kingdom
+Delivery to United Kingdom Storage: 25 Mar 2020</p> -->
+</div>
+</div>
+</div>
+</div>
+<div class="col-xs-5 col-sm-5 col-lg-5 add-to a-right">
+<div class="bottleboxx">
+<div class="guaranteed-stock-tip-cont">
+	{% if get_produuct_years_one_data %}
+<div id="guaranteed-stock-tip">Bottle/Case Format</div>
+
+<select class="quantity_select select_case_formate" data-type="Retail" style="width:100%;" id="case_formate_Retail">
+			
+			{% for items in get_produuct_years_one_data  %}
+			<option value="{{items.id}}">{{items.Bottle}}</option>
+			{% endfor %}
+			</select>
+			{% endif %}
+			</div>
+</div>
+<div class="qtybox">
+
+<select name="qty" id="quentyti_Retail">
+
+{% for i in get_product_one_year.Retail_Stock|times %}
+    <option>{{i}}</option>
+{% endfor %}
+
+</select>
+
+
+{% if get_product_one_year.Retail_Cost > 0 %}
+<button type="button" id="Retail_buy" title="Add To Order" data-product_id="{{get_product_one_year.Product.Product_id}}" data-cost_type="Retail" class="button btn-cart change-ib-db add_to_card" data-order_type="c" data-order_id="" data-event_id="">Buy</button>
+{% else %}
+<button type="button" id="Retail_buy"  disabled="true" data-product_id="{{get_product_one_year.Product.Product_id}}"data-cost_type="Retail" title="Add To Order" class="button btn-cart change-ib-db add_to_card" data-order_type="c" data-order_id="" data-event_id="">Buy</button>
+{% endif %}
+</div>
+ </div>
+</form>
+</div>
+{% endif %}
+
+   
+  </div>
+  
+  <div class="itemselector-container">
+  <ul class="itemselector list-group">
+    <li class="d-flex justify-content-between align-items-center list-group-item">
+      <div class="label">Vintage
+
+      </div>
+      <div class="vintage-togglebox">
+
+        {% if get_product_one_year.Product.Vintage.all|length < 2 %}
+          {{get_product_one_year.Product.Vintage.all|join:" | "}}
+        {% else %}
+        <button class="selector dropdown-toggle vintageshow" type="button">{{get_product_one_year}} <span class="caret"></span>
+        </button>
+		<ul class="dropdown-menu-right12 sincebox">
+     	{% for items  in get_product_one_year.Product.Vintage.all %}
+		<li><a aria-label="{{items}}" href="{% url 'product_detail:product_detail' get_product_one_year.Product.Product_id get_product_one_year.Product.Product_slug  items %}">{{items}}</a></li>
+		{% endfor %}
+        </ul>
+        {% endif %}
+        
+      </div>
+    </li>
+    <li class="d-flex justify-content-between align-items-center list-group-item">
+      <div class="label">Color</div>
+      <div class="vintage-togglebox">
+        {% if get_product_one_year.Product.Color.all|length <= 1 %}
+          {{get_product_one_year.Product.Color}}
+        {% else %}
+        <button class="selector dropdown-toggle vintageshow1" type="button">Select Color </button>
+		<ul class="dropdown-menu-right12 redtoggle">
+          {% for items  in get_product_one_year.Product.Color.all %}
+		<li><a href="#">{{items}}</a></li>
+		</ul>
+		{% endfor %}
+        {% endif %}
+          
+          
+        
+      </div>
+    </li>
+    <li class="d-flex justify-content-between align-items-center list-group-item">
+      <div class="label">Bottle/Case Format</div>
+      <div class="">
+       {{get_product_one_year.Bottle}}
+        
+      </div>
+    </li>
+  </ul>
+  <!-- <button class="product-story_info-btn right">Add to my shopping cart</button> -->
+</div>
+
+  
+  <div class="accordion_container">
+ <div class="accordion_box">
+    <div class="accordion_head"><span class="score">93 </span>Vinous<span class="plusminus">+</span></div>
+    <div class="accordion_body" style="display: none;">
+        <p>The 2018 Charmes-Chambertin Grand Cru has a clean, precise bouquet with subtle violet aromas infusing the blackberry and cassis fruit. The palate is ripe and sensual on the opening, slightly lower in acidity compared to the other Grand Crus, but undeniably harmonious and velvety-smooth toward the finish. This is a classy, almost understated Charmes-Chambertin. Very fine.</p>
+<p>
+<strong>Drinking Window: 2024 - 2050</strong>
+</p>
+<p><strong>Reviewer Name: Neal Martin</strong></p>
+<p><strong>Review Date: 20th January 2001</strong></p>
+    </div>
+	</div>
+	<div class="accordion_box">
+    <div class="accordion_head"><span class="score">94 </span>Wine Advocate<span class="plusminus">+</span>
+
+    </div>
+    <div class="accordion_body" style="display: none;">
+       <p>Derived from two supplies, from one as grapes and from the other as wine, the 2018 Charmes-Chambertin Grand Cru (Maison Louis Jadot) offers up a pure, fruit-driven bouquet of ripe cherries and berries. On the palate, it's medium to full-bodied, ample and open-knit, with an expressive, generous 
+<p><strong>Reviewer Name: William Kelley</strong></p>
+<p><strong>Review Date: 10th January 2020</strong></p>
+    </div>
+
+</div>
+       </div> 
+	   
+	   
+	   
+
+
+
+	   
+  
+  
+  
+</div>
+<div class="clearfix"></div>
+</section>
+<section>
+<div class="container">
+
+<div class="review-box scores">
+<div class="">
+
+	<ul class="tabs product-tabs">
+		<li class="tab-link current" data-tab="tab-1">Details</li>
+		<!--<li class="tab-link" data-tab="tab-2">Review (2)</li>-->
+		<li class="tab-link" data-tab="tab-2">Winery</li>
+		<li class="tab-link" data-tab="tab-3">Producer Notes</li>
+		<!--<li class="tab-link" data-tab="tab-5">Valuation Tools</li>-->
+	</ul>
+
+	<div id="tab-1" class="tab-content current">
+		<ul class="wine-info">
+<li>
+<span>Year</span>
+<span>{{get_product_one_year.Product.Vintage.all|join:" | "}}</span>
+</li>
+<li>
+<span>Colour</span>
+<span>{{get_product_one_year.Product.Color.all|join:" | "}}</span>
+</li>
+<li>
+<span>Country</span>
+<span>{{get_product_one_year.Product.Country}}</span>
+</li>
+<li>
+<span>Region</span>
+<span>{{get_product_one_year.Product.Regions}}</span>
+</li>
+<!-- <li>
+<span>Designation</span>
+<span>{{get_product_one_year.Product.Description | safe}}</span>
+</li> -->
+<li>
+<span>Classification</span>
+<span>{{get_product_one_year.Product.Classification.all|join:" | "}}</span>
+</li>
+<li>
+<span>Pack Size</span>
+<span>{{get_product_one_year.Product.Bottel_Size.all|join:" | "}}</span>
+</li>
+<li>
+<span>Drinking Window</span>
+<span>2024 - 2050</span>
+</li>
+<li>
+<span>Drinking Recommendation</span>
+<span>Not Ready</span>
+</li>
+<li>
+<span>LWIN</span>
+<span>{{get_product_one_year.Product.Product_id}}</span>
+</li>
+</ul>
+	</div>
+
+<div id="tab-2" class="tab-content">
+	
+<p>
+  
+<a href="{% url 'wine_shop:wine_shop' %}?page-type=producer&page-name={{get_product_one_year.Product.Producer.Slug}}" title="Alvear">{{get_product_one_year.Product.Producer.Winnery_Name}}</a>
+</p>
+<p>
+{{get_product_one_year.Product.Producer.Description | safe}}</p>
+<p>
+<a href="{% url 'wine_shop:wine_shop' %}?page-type=producer&page-name={{get_product_one_year.Product.Producer.Slug}}" style="text-decoration: underline" title="Alvear" class="product-story_info-btn">
+See more wines from Alvear </a>
+</p>
+
+	</div>
+	<div id="tab-3" class="tab-content">
+		{{get_product_one_year.Product.Description | safe}}
+
+
+	</div>
+	
+		
+
+</div>
+</div>
+</div>
+</section>
+{% if get_filan_vintage_year %}
+  <div class="fluid-container" style="border-top:1px solid rgba(204, 204, 204, 0.7)">
+    <div class="popular p-t-b-20">
+      <div class="container">
+	 <h2 class="palate">Wine inspired by your palate</h2>
+        
+        <div class="owl-slider">
+		
+		<!--<div class="product-carousel-title-holder">
+		<p>By the same winery</p></div>-->
+		
+          <div id="releted-product" class="owl-carousel">
+            {% for get_items in get_filan_vintage_year %}
+
+            {% if get_items.Product|get_product_vintage_yera_one %}
+            <div class="item"> 
+			<span class="heartbox">
+{% if user.username == '' %}
+<i class="fa fa-heart-o"></i>
+{% else %}
+        <a href="javascript:;" data-wishlist_url="{% url 'user_wishlist:add_wishlist' get_items.Product.id get_items.Product|get_product_vintage_yera_one  %}"  class="wishlist {{user|check_in_wish_list:get_items.Product}} product_id_{{get_items.id}}" data-prodcut_id="{{get_items.id}}">{% if user|check_in_wish_list:get_items.Product == "" %} <i class="fa fa-heart-o"></i> {% else %}<i class="fa fa-heart"></i> {% endif %}</a>
+      {% endif %}
+      </span>
+			<a href="{% url 'product_detail:product_detail' get_items.Product.Product_id get_items.Product.Product_slug  get_items.Product|get_product_vintage_yera_one %}"><img src='{{get_items.Product|get_product_image_one}}' alt="" /></a>
+              <div class="bottale-name">
+			  <p>{{get_items.Product}} ({{get_items}})</p>
+			  <a href="{% url 'product_detail:product_detail' get_items.Product.Product_id get_items.Product.Product_slug  get_items.Product|get_product_vintage_yera_one %}" class="product-story_info-btn">See Details</a>
+			  </div>
+            </div>
+            {% endif %}
+             {% endfor %}
+            
+          
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if trending_wines %}
+
+
+  <div class="fluid-container border-top" >
+    <div class="popular p-t-b-20">
+      <div class="container">
+	  <h2 class="palate">Customers who viewed this item also viewed</h2>
+        
+        <div class="owl-slider">
+		
+		<!--<div class="product-carousel-title-holder"><p>Aroma Customers Also Bought</p></div>-->
+          <div id="releted-product1" class="owl-carousel">
+            
+            {% for items in trending_wines %}
+             {% if items|get_product_vintage_yera_one %}
+            <div class="item">
+<span class="heartbox">
+  {% if user.username == '' %}
+  <i class="fa fa-heart-o"></i>
+  {% else %}
+  <a href="javascript:;" data-wishlist_url="{% url 'user_wishlist:add_wishlist' items.id items|get_product_vintage_yera_one  %}"  class="wishlist {{user|check_in_wish_list:items}} product_id_{{items.id}}" data-prodcut_id="{{items.id}}">{% if user|check_in_wish_list:items == "" %} <i class="fa fa-heart-o"></i> {% else %}<i class="fa fa-heart"></i> {% endif %}</a>
+  {% endif %}
+</span>
+			<a href="{% url 'product_detail:product_detail' items.Product_id items.Product_slug  items|get_product_vintage_yera_one %}"><img src='{{items|get_product_image_one}}'  alt="" /></a>
+              <div class="bottale-name">
+			  <p>{{items.Product_name}} 
+                     ({{items|get_product_vintage_yera_one}})</p>
+			  <a href="{% url 'product_detail:product_detail' items.Product_id items.Product_slug  items|get_product_vintage_yera_one %}" class="product-story_info-btn">See Details</a>
+			  </div>
+            </div>
+            {% endif %}
+
+           {% endfor %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {% endif %}
+  
+  <section class="producer" style="border-top:0px;">
+  <div class="container">
+    <div class="row">
+      <!-- <div class="col-md-6">
+        <div class="newstylebox">
+          <h2 class="title_h2">The Producer</h2>
+          {% if get_product_one_year.Product.Producer.Producer_Image %}
+           <img src='{{get_product_one_year.Product.Producer.Producer_Image.url}}' alt=""/>
+          {% else %}
+          <img src='{% static "web/assets/image/shop/procducer.jpg" %}' alt=""/>
+          {% endif %}
+          <h3 class="title_h3">{{get_product_one_year.Product.Producer.Winnery_Name}}</h3>
+          <p>{{get_product_one_year.Product.Producer.Description | safe}}</p>
+          <div class="view_producer_btn"> <a class="product-story_info-btn" href="view-producer.php">View Producer</a> </div>
+        </div>
+      </div> -->
+      {% if get_product_one_year.Product.Grape %}
+      {% for items in get_product_one_year.Product.Grape.all  %}
+      <div class="col-md-6">
+        <div class="newstylebox">
+          <h2 class="title_h2">The Grape</h2>
+          <a href="{% url 'wine_shop:wine_shop' %}?page-type=grape&page-name={{items.Slug}}">
+          {% if items.Grape_Image %}
+           <img src='{{items.Grape_Image.url}}' alt=""/>
+          {% else %}
+          <img src='{% static "web/assets/image/Italy_world_leading_wine_producer.jpg" %}'  alt=""/>
+          {% endif %}
+        </a>
+          
+          <h3 class="title_h3">{{items.Grape_Name}}</h3>
+          <!-- <p>{{items.Description | safe|slice:"0:150"}}</p> -->
+
+          <div class="view_producer_btn"> <a class="product-story_info-btn" href="{% url 'wine_shop:wine_shop' %}?page-type=grape&page-name={{items.Slug}}">View Grape</a> </div>
+        </div>
+      </div>
+       {% endfor %}
+      {% endif %}
+      
+    </div>
+  </div>
+  </div>
+</section>
+{% if get_product_one_year.Product.Producer %}
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="title_h2">The Producer</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h3 class="title_h3"><a href="{% url 'wine_shop:wine_shop' %}?page-type=producer&page-name={{get_product_one_year.Product.Producer.Slug}}"> {{ get_product_one_year.Product.Producer}}</h3></a>
+        {{get_product_one_year.Product.Producer.Description | safe }}
+        <div class="view_producer_btn"> <a class="product-story_info-btn" href="{% url 'wine_shop:wine_shop' %}?page-type=producer&page-name={{get_product_one_year.Product.Producer.Slug}}">View Producer</a> </div>
+      </div>
+      <div class="col-md-6"> 
+        <a href="{% url 'wine_shop:wine_shop' %}?page-type=producer&page-name={{get_product_one_year.Product.Producer.Slug}}">
+{% if get_product_one_year.Product.Producer.Producer_Image %}
+           <img src='{{get_product_one_year.Product.Producer.Producer_Image.url}}' alt=""/>
+          {% else %}
+          <img src='{% static "web/assets/image/shop/bodega-clos-floridene-banner.jpg" %}'  alt=""/>
+          {% endif %}
+        </a>
+      	 </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<br>
+
+{% if get_product_one_year.Product.Regions %}
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="title_h2">The Region</h2>
+      </div>
+    </div>
+    <div class="row">
+      
+      <div class="col-md-6"> 
+<a href="{% url 'wine_shop:wine_shop' %}?page-type=region&page-name={{get_product_one_year.Product.Regions.Slug}}">
+{% if get_product_one_year.Product.Regions.Region_Image %}
+           <img src='{{get_product_one_year.Product.Regions.Region_Image.url}}' alt=""/>
+          {% else %}
+          <img src='{% static "web/assets/image/shop/bodega-clos-floridene-banner.jpg" %}'  alt=""/>
+          {% endif %}
+        </a>
+      	 </div>
+      	 <div class="col-md-6">
+        <h3 class="title_h3">{{ get_product_one_year.Product.Regions}}</h3>
+        {{get_product_one_year.Product.Regions.Description | safe }}
+        <div class="view_producer_btn"> <a class="product-story_info-btn" href="{% url 'wine_shop:wine_shop' %}?page-type=region&page-name={{get_product_one_year.Product.Regions.Slug}}">View Region</a> </div>
+      </div>
+    </div>
+  </div>
+</section>
+<br>
+{% endif %}
+
+<!-- <section class="review-box">
+  <div class="container">
+    <ul class="tabs product-tabs1">
+      <li class="tab-link current" data-tab="tab-6">Customer Reviews</li>
+      
+    </ul>
+    <div id="tab-6" class="tab-content current" style="display:block;">
+      
+	  
+		
+		 <div class="review_box">
+        <div class="row customer_review">
+		
+		<div class="col-md-1">
+		<div class="review_user">
+		<img alt="" src='{% static "web/assets/image/u.png" %}' >
+		</div>
+		</div>
+		
+		<div class="col-md-10">
+		<div class="rating-stars">
+        <ul id="stars">
+          <li class="star " title="Poor" data-value="1"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star " title="Fair" data-value="2"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star " title="Good" data-value="3"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star " title="Excellent" data-value="4"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star" title="WOW!!!" data-value="5"> <i class="fa fa-star fa-fw"></i> </li>
+        </ul>
+      </div>
+      <p class="review_highlight">Your Rating</p>
+		<div class="rating_box_view">
+              <div class="rating_div">
+			  <form action="#" method="post">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="comment" class="form-comm">comment *</label>
+                    <textarea rows="3" required="required" class="form-control"></textarea>
+                </div>
+            </div>
+			<div class="col-md-12">
+			<div class="form-group text-right ">
+<button type="submit" class="product-story_info-btn">Submit</button>
+</div>
+			</div>
+            </div>
+           
+        </form>
+              
+            </div>
+		</div>
+		
+		</div>
+		</div>
+		</div>
+		
+      
+	  <div class="review_box">
+        <div class="row customer_review">
+		<div class="col-md-1">
+		<div class="review_user">
+		<img alt="" src='{% static "web/assets/image/u.png" %}'>
+		</div>
+		</div>
+		
+		<div class="col-md-10">
+		<div class="rating_box_view">
+              <div class="rating_div">
+			  <h6>Client Name <small>31 Jan 2020</small></h6>
+                <fieldset>
+                  <span class="great">3.0/5</span>
+                  <div class="rating-stars">
+        <ul id="stars">
+          <li class="star selected" title="Poor" data-value="1"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Fair" data-value="2"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Good" data-value="3"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Excellent" data-value="4"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star" title="WOW!!!" data-value="5"> <i class="fa fa-star fa-fw"></i> </li>
+        </ul>
+      </div>
+                </fieldset>
+              </div>
+              <p>this was nice in buy. this was nice in buy. this was nice in buy. this was nice in buy this was nice in buy this was nice in buy this was nice in buy this was nice in buy</p>
+              
+            </div>
+		</div>
+		
+		</div>
+		</div>
+		
+		<div class="review_box">
+        <div class="row customer_review">
+		<div class="col-md-1">
+		<div class="review_user">
+		<img alt="" src='{% static "web/assets/image/u.png" %}'>
+		</div>
+		</div>
+		
+		<div class="col-md-10">
+		<div class="rating_box_view">
+              <div class="rating_div">
+			  <h6>Client Name <small>01 Feb 2020</small></h6>
+                <fieldset>
+                  <span class="great">4.5/5</span>
+                  <div class="rating-stars">
+        <ul id="stars">
+          <li class="star selected" title="Poor" data-value="1"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Fair" data-value="2"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Good" data-value="3"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Excellent" data-value="4"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star" title="WOW!!!" data-value="5"> <i class="fa fa-star fa-fw"></i> </li>
+        </ul>
+      </div>
+                </fieldset>
+              </div>
+              <p>this was nice in buy. this was nice in buy. this was nice in buy. this was nice in buy this was nice in buy this was nice in buy this was nice in buy this was nice in buy</p>
+              
+            </div>
+		</div>
+		
+		</div>
+		</div>
+		
+		
+		<div class="review_box">
+        <div class="row customer_review">
+		<div class="col-md-1">
+		<div class="review_user">
+		<img alt="" src='{% static "web/assets/image/u.png" %}'>
+		</div>
+		</div>
+		
+		<div class="col-md-10">
+		<div class="rating_box_view">
+              <div class="rating_div">
+			  <h6>Client Name <small>01 Feb 2020</small></h6>
+                <fieldset>
+                  <span class="great">4.5/5</span>
+                  <div class="rating-stars">
+        <ul id="stars">
+          <li class="star selected" title="Poor" data-value="1"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Fair" data-value="2"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Good" data-value="3"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star selected" title="Excellent" data-value="4"> <i class="fa fa-star fa-fw"></i> </li>
+          <li class="star" title="WOW!!!" data-value="5"> <i class="fa fa-star fa-fw"></i> </li>
+        </ul>
+      </div>
+                </fieldset>
+              </div>
+              <p>this was nice in buy. this was nice in buy. this was nice in buy. this was nice in buy this was nice in buy this was nice in buy this was nice in buy this was nice in buy</p>
+              
+            </div>
+		</div>
+		
+		</div>
+		</div>
+	   
+    
+
+  </div>
+  </div>
+</section>
+
+  </div>
+  </div>
+</section> -->
+
+
+
+
+{% endblock %}
+
+
+  {% block script %}
+  {% if image_of_full_view %}
+   <script src='https://code.createjs.com/easeljs-0.6.0.min.js'></script>
+  {% endif %}
+   <script src='{% static "web/assets/image_zoom/dist/js/lightbox.js" %}'></script>
+  }
+
+ 
+<script type="text/javascript">
+var stage;
+
+
+function init() {
+  var canvas = document.getElementById("360viewer");
+  if (!canvas || !canvas.getContext) return;
+
+  stage = new createjs.Stage(canvas);
+  stage.enableMouseOver(true);
+  stage.mouseMoveOutside = true;
+  createjs.Touch.enable(stage);
+
+
+
+  // var imgList = [
+  //   '{% static "web/assets/full_views/images/wine_1.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_2.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_3.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_4.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_5.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_6.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_7.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_8.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_9.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_10.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_11.png" %}',
+  //   '{% static "web/assets/full_views/images/wine_12.png" %}',
+   
+  // ];
+
+  var imgList = new Array();;
+
+
+ {% if image_of_full_view %}
+ {% for item in image_of_full_view %} 
+ var image = "{{item.Image.url}}";
+ imgList.push(image);
+ {% endfor %}  
+{% endif  %} 
+  
+
+
+  
+  
+  var images = [],
+    loaded = 0,
+    currentFrame = 0,
+    totalFrames = imgList.length;
+  var rotate360Interval, start_x;
+
+  var bg = new createjs.Shape();
+  stage.addChild(bg);
+
+  var bmp = new createjs.Bitmap();
+  stage.addChild(bmp);
+
+  var myTxt = new createjs.Text("", '24px', "#fcc201");
+myTxt.y =280;
+myTxt.x =20;
+
+
+   myTxt.alpha = 1;
+  stage.addChild(myTxt);   
+
+  function load360Image() {
+    var img = new Image();
+    img.src = imgList[loaded];
+    img.onload = img360Loaded;
+    images[loaded] = img;
+  }
+
+  function img360Loaded(event) {
+    loaded++;
+    bg.graphics.clear()
+    bg.graphics.beginFill("#fff").drawRect(0, 0, stage.canvas.width * loaded / totalFrames, stage.canvas.height);
+    bg.graphics.endFill();
+
+    if (loaded == totalFrames) start360();
+    else load360Image();
+  }
+
+  function start360() {
+    document.body.style.cursor = 'none';
+
+    // 360 icon
+   //var iconImage = new Image();
+    //iconImage.src = "images/arrow-360.png";
+    //iconImage.onload = iconLoaded;        
+
+    // update-draw
+    update360(0);
+
+    // first rotation
+    rotate360Interval = setInterval(function() {
+      if (currentFrame === totalFrames - 1) {
+        clearInterval(rotate360Interval);
+        addNavigation();
+      }
+      update360(1);
+    }, 25);
+  }
+  
+
+  function iconLoaded(event) {
+    var iconBmp = new createjs.Bitmap();
+    iconBmp.image = event.target;
+    iconBmp.x = 20;
+    iconBmp.y = canvas.height - iconBmp.image.height - 20;
+    stage.addChild(iconBmp);
+  }
+
+  function update360(dir) {
+    currentFrame += dir;
+    if (currentFrame < 0) currentFrame = totalFrames - 1;
+    else if (currentFrame > totalFrames - 1) currentFrame = 0;
+    bmp.image = images[currentFrame];
+  }
+
+  //------------------------------- 
+  function addNavigation() {
+    stage.onMouseOver = mouseOver;
+    stage.onMouseDown = mousePressed;
+    document.body.style.cursor = 'auto';
+  }
+
+  function mouseOver(event) {
+    document.body.style.cursor = 'pointer';
+  }
+
+  function mousePressed(event) {
+    start_x = event.rawX;
+    stage.onMouseMove = mouseMoved;
+    stage.onMouseUp = mouseUp;
+
+    document.body.style.cursor = 'w-resize';
+  }
+
+  function mouseMoved(event) {
+    var dx = event.rawX - start_x;
+    var abs_dx = Math.abs(dx);
+
+    if (abs_dx > 5) {
+      update360(dx / abs_dx);
+      start_x = event.rawX;
+    }
+  }
+
+  function mouseUp(event) {
+    stage.onMouseMove = null;
+    stage.onMouseUp = null;
+    document.body.style.cursor = 'pointer';
+  }
+
+  function handleTick() {
+    stage.update();
+  }
+
+  document.body.style.cursor = 'progress';
+  load360Image();
+
+  // TICKER
+  createjs.Ticker.addEventListener("tick", handleTick);
+  createjs.Ticker.setFPS(24);
+  createjs.Ticker.useRAF = true;
+}
+
+// Init
+window.addEventListener('load', init, false);
+</script>
+  {% endblock %}
+
+

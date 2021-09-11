@@ -1,0 +1,291 @@
+{% extends 'web/base-template.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container cart-area">
+  {% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+            <div class="alert alert-success alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                      <strong>{{message}}</strong> 
+                    </div>
+           {% endif %}   
+           
+           {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                      <strong>{{message}}</strong> 
+                    </div>
+           {% endif %}         
+      
+    {% endfor %}
+    {% endif %}
+
+
+{% if card_product.0.Order_Type == "Cellar" %}
+{% include 'web/user/page/orders/mycard_include/for_cellar.html' %}
+{% endif %}
+
+{% if card_product.0.Order_Type == "Delivered" %}
+{% include 'web/user/page/orders/mycard_include/for_delivered.html' %}
+{% endif %}
+
+
+{% if card_product.0.Order_Type == "Tickets" %}
+{% include 'web/user/page/orders/mycard_include/for_tickets.html' %}
+{% endif %}
+
+
+
+
+
+</div>
+
+{% endblock %}
+
+
+
+{% block script %}
+
+<script type="text/javascript">
+
+ 
+
+$(document).ready(function(){
+
+  $(".go_to_checkout").click(function(){
+     var url_ser = "{% url 'orders:checkout' %}";
+     var coupon_code = $("#set_coupon_code").val();
+     if(coupon_code)
+     {
+       url_ser = url_ser+"?coupon-code="+coupon_code;
+     } 
+        // alert(url_ser); 
+        window.location.href = url_ser; 
+  });
+
+});
+
+
+
+function  set_sub_total_gst_amount_of_card_product()
+{
+   var product_total_gst = 0;
+    $(".amount_without_gst").each(function(){
+      var item_id = $(this).data('item_id');
+      var get_quentuty  = parseInt($("#quentuty_"+item_id).val());
+      var product_value_with_gst = parseFloat($(".gst_amount_"+item_id).val());
+      product_total_gst = product_total_gst+ (product_value_with_gst * get_quentuty );
+    });
+    return product_total_gst.toFixed(2);
+}
+
+
+function set_sub_total_amount_of_card_product()
+{
+  var product_total = 0;
+  $(".amount_without_gst").each(function(){
+
+  var item_id = $(this).data('item_id');
+  var get_quentuty  = parseInt($("#quentuty_"+item_id).val());
+
+  var product_value_without_gst = parseFloat($(this).val());
+    product_total = product_total + (product_value_without_gst * get_quentuty);
+  });
+  return product_total.toFixed(2);
+}
+
+function set_total_amount_of_card_product()
+{
+  var total_amount = 0.00;
+  $(".total").each(function(){
+ 
+ total_amount = total_amount +  parseFloat($(this).val());
+
+});
+
+var coupon_type = $("#set_coupon_type").val();
+if(coupon_type)
+{
+  var count = parseFloat($("#set_coupon_count").val());
+    if(coupon_type=="P")
+    {
+      var type = "%";
+      var get_persenteg_amoint = (total_amount*count)/100;
+      total_amount = total_amount - get_persenteg_amoint;
+    }
+    if(coupon_type=="A")
+    {
+      var type = "Amount";
+      var get_persenteg_amoint = count;
+      total_amount = total_amount - count;
+    }
+    $("#show_descount_amount").html('<li><span class="pull-left">discount('+type+')</span>$<span >'+get_persenteg_amoint+'</span></li>');
+}
+
+  return total_amount;
+}
+
+
+function check_cupon_code(url_set){
+ 
+ var cupon_code = $("#enter_coupon_code").val();
+ $("#show_error_message").text("");
+ if(cupon_code)
+ {
+   
+    $.ajax({
+        method:"POST",
+           url:url_set,
+           data:{"coupon_code":cupon_code},
+           dataType:"JSON",
+           success:function(data)
+           {
+             if(data.status=="0")
+             {
+              $("#show_error_message").text(data.message);
+             }
+             else
+             {
+              console.log(data.data);
+              $("#set_coupon_code").val(cupon_code);
+              $("#set_coupon_type").val(data.data.type);
+              $("#set_coupon_count").val(data.data.count);
+              $("#clear_str").html('');
+              $("#show_success_message").html('<span class="badge badge-success" >'+data.message+'</span>');
+              $(".show_total_ampount").text(set_total_amount_of_card_product());
+             }
+           } 
+        });
+ }
+ else
+ {
+  $("#show_error_message").text("Enter coupon code.");
+ }
+
+}
+
+$(document).on("click",".quentity_set",function(){
+
+var type = $(this).data("type");
+var prodict_id = $(this).data("product_id");
+var current_val = $("#quentuty_"+prodict_id).val();
+var last_val = $("#quentuty_"+prodict_id).data("max_val");
+var product_price = $("#quentuty_"+prodict_id).data("product_price");
+
+if(type=='plus')
+{
+  current_val =parseInt(current_val)+1;
+  if(current_val <= parseInt(last_val))
+  {
+     $("#quentuty_"+prodict_id).val(current_val);
+  }
+  else
+  {
+    current_val =parseInt(current_val)-1;
+  }
+}
+
+if(type=='minus')
+{
+  current_val =parseInt(current_val)-1;
+  if(current_val > 0)
+  {
+     $("#quentuty_"+prodict_id).val(current_val);
+  }
+  else
+  {
+    current_val =parseInt(current_val)+1;
+  }
+}
+
+var get_total_price = parseInt(product_price)*current_val;
+$("#price_show_"+prodict_id).text(get_total_price);
+$("#input_price_show_"+prodict_id).val(get_total_price);
+
+$(".show_total_ampount").text(set_total_amount_of_card_product());
+$(".show_sub_total_ampount").text(set_sub_total_amount_of_card_product());
+$(".show_sub_total_gst").text(set_sub_total_gst_amount_of_card_product());
+
+$("#set_product_amount").val(set_sub_total_amount_of_card_product());
+$("#set_order_gst").val(set_sub_total_gst_amount_of_card_product());
+});
+
+
+ // ===================UPDATE CARD START=================
+ $(document).on("click","#update_card",function(){
+
+
+swal({
+            title: "Are you sure to update your cart?.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+          .then((willDelete) => {
+            if (willDelete) {
+                $(".se-pre-con").css("display","block");
+            var url_set  = $(this).data("card_update_url");
+              var ids_set = new Array();
+              var que_set = new Array();
+
+                $(".card_product_id").each(function(){
+                      var card_product_id = $(this).val();
+                        ids_set.push(card_product_id); 
+                        que_set.push($("#quentuty_"+card_product_id).val()); 
+                    });
+
+
+              
+                $.ajax({
+                   method:"POST",
+                   url:url_set,
+                   data:{"ids_set":ids_set,"que_set":que_set},
+                   dataType:"JSON",
+                   success:function(data)
+                   {
+                    get_card_product();
+                   swal("Cart updated sueccessfully.");
+                   } 
+                });
+            } 
+          });
+
+
+
+ });
+ // ===================UPDATE CARD END =================
+
+
+  $(document).ready(function(){
+
+$(".show_total_ampount").text(set_total_amount_of_card_product());
+$(".show_sub_total_ampount").text(set_sub_total_amount_of_card_product());
+$(".show_sub_total_gst").text(set_sub_total_gst_amount_of_card_product());
+
+$("#set_product_amount").val(set_sub_total_amount_of_card_product());
+$("#set_order_gst").val(set_sub_total_gst_amount_of_card_product());
+
+
+
+
+
+ $("#toggle2").change(function(){
+   if($(this).prop("checked")==false)
+    {
+      $("#address_obj").css('display','none');
+      $("#address_form").css('display','flex');
+    }
+    if($(this).prop("checked")==true)
+    {
+      $("#address_form").css('display','none');
+      $("#address_obj").css('display','flex');
+    }
+
+
+ });
+
+  });
+</script>
+      {% endblock %}

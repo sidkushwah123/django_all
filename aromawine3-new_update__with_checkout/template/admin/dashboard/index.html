@@ -1,0 +1,64 @@
+{% extends 'admin/base-template.html' %}
+{% block content %}
+{% load static %}
+		 <div class="page-content">
+		 <section class="content-header">
+        
+        <div class="header-title">
+            <h1>Dashboard</h1>
+            
+            
+        </div>
+    </section>
+         <div class="container-fluid">
+           
+
+               <div class="col-md-12">
+                  <div class="card no-b">
+                     <div class="collapse show" id="invoiceCard">
+                        <div class="card-body p-0">
+                           <div class="col--md-12 p-0">
+                              <!-- <div class="card widget"> -->
+                                 <div class="card-body">
+                                    <div class="row border-bottom">
+                                       <div class="col-md-3 p-4 b-r">
+                                          <span class="text-center">
+                                             <i class="fas text-themecolor icon-users"></i>
+                                          </span>
+                                          <h1 class="font-light count">{{total_User}}</h1>
+                                           <h5>Users</h5>
+                                       </div>
+                                       <div class="col-md-3 p-4 b-r">
+                                          <span class="text-center"><i class="fas text-themecolor icon-heartbeat"></i>
+                                          </span>
+                                          <h1 class="font-light count">{{total_complate_product}}</h1>
+                                          <h5>Completed Order</h5>
+                                       </div>
+                                       <div class="col-md-3 p-4 b-r">
+                                          <span class="text-center">
+                                             <i class="fas text-themecolor icon-gift"></i>
+                                          </span>
+                                          <h1 class="font-light count">{{total_delivery_Orders}}</h1>
+                                          <h5>Delivery Orders</h5>
+                                       </div>
+                                       <div class="col-md-3 p-4 b-r">
+                                          <span class="text-center">
+                                             <i class="fas text-themecolor icon-book"></i>
+                                          </span>
+                                          <h1 class="font-light count">{{total_Caller_Orders}}</h1>
+                                          <h5>Cellar Order</h5>
+                                       </div>
+                                    </div>
+                                 </div>
+                             <!--  </div> -->
+                               <!---->
+                                <!-- <div class="card widget"><div class="card-body"><div class="row border-bottom"><div class="col-12"><h4 class="card-title mb-3">Todo</h4> <div class="mr-4"><form><div class="px-2"><div class="form-group"><input type="text" name="title" placeholder="Title" class="form-control"> </div></div></form> <div><div class="vb vb-invisible" style="position: relative; overflow: hidden;"><div class="m-b-20 vb-content" style="max-height: 200px; display: block; overflow: hidden scroll; height: 100%; width: calc(100% + 17px);"></div><div class="vb-dragger" style="position: absolute;"><div class="vb-dragger-styler"></div></div></div></div></div></div></div></div></div>  -->
+                               <!----> <!----></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+ {% endblock %}

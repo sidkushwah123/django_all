@@ -1,0 +1,192 @@
+{% extends 'web/base-template.html' %}
+{% block content %}
+{% load static %}
+
+
+
+<main class="information">
+ 
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9 order-lg-last dashboard-content">
+                       
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+
+                                    <div class="card-header">
+                                      {{user_info.Title}} {{user.first_name}} {{user.last_name}} - {{user.id}}  ({{membership_label}})
+                     <!--<button class="deliverCellaredWineButton" style="margin-left:20px;">
+                    
+                    <span class="product-button-info">Set Default Account</span>
+                  </button>-->
+                     
+                                       
+                                    </div><!-- End .card-header -->
+
+                                    <div class="card-body">
+
+
+                        {% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+            <div class="alert alert-success alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                      <strong>{{message}}</strong> 
+                    </div>
+           {% endif %}   
+           
+           {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: crimson!important">&times;</a>
+                      <strong>{{message}}</strong> 
+                    </div>
+           {% endif %}         
+      
+    {% endfor %}
+    {% endif %}
+                                      
+                  <div class="row">
+                  <div class="col-md-9">
+                  <h5>Your Account Manager</h5>
+                                        <p>
+                                         {{user_info.Title}} {{user.first_name}} {{user.last_name}}<br>Tel: {{user_info.Contact_no}}
+                      <br>
+                      Email: <a href="#">{{user.email}}</a>
+                                        </p>
+                    </div>
+                    <div class="col-md-3" style="background-color: #000;">
+                    <img src='{{"demo"|get_logo}}'>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                    <div class="col-md-12 order-detailtext">
+                    
+                   <!--  <table cellspacing="0" cellpadding="0" class="accountTable">
+            <tbody>
+              <tr>
+              <td>
+                Account Balance:&nbsp;£3,999.00&nbsp; DR
+              </td>
+        <td><a class="btn-secondary-action right" href="#">Add Funds</a></td>
+            </tr>
+          </tbody>
+        </table> -->
+          
+          {% if letest_order %}
+          <table cellspacing="0" cellpadding="0" class="accountTable">
+            <tbody><tr>
+              <td>
+                Latest Order {{letest_order.Order_Date}},<a href="{% url 'orders:prodyuct_info' letest_order.order_id  %}">Order Number: 0{{letest_order.order_id}}</a>
+              </td>
+              <td>
+                <a class="btn-secondary-action right" href="{% url 'orders:orders' %}">View Your Order History</a>
+                </td>
+            </tr>
+          </tbody></table>
+          {% endif %}
+          
+                    </div>
+                    </div>
+                    
+                                    </div><!-- End .card-body -->
+                                </div><!-- End .card -->
+                            </div><!-- End .col-md-6 -->
+
+                            <!-- End .col-md-6 -->
+                       
+
+            
+            <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                               Your Wish List
+                              
+                            </div><!-- End .card-header -->
+
+                            <div class="card-body">
+                         
+                                       <a href="wishlist-summary.php">View / Edit Your Wish List</a>
+                          
+                            </div><!-- End .card-body -->
+                        </div><!-- End .card -->
+            </div>
+            
+            
+            
+            </div>
+            <div class="row">
+            <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                Your Cellared Wines
+                                
+
+                                <a href="{% url 'orders:orders' %}"><u>View More</u></a> 
+                            </div><!-- End .card-header -->
+
+                            <div class="card-body">
+                               <div class="col-md-12 order-detailtext">
+                    
+                            <table class="table table-bordered">
+                              <thead>
+                                <tr>
+                                 <th>Image</th>
+                                  <th>Product</th>
+                                  <th>Type & Case Size</th>
+                                  <th>Price</th>
+                                  <th>Quantity</th>
+                                  <th>Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% if celler_item %}
+                                {% for item in celler_item %}
+                                <tr>
+                                  
+                                  {% if item.Product_Delivered %}
+                                  <th><img src="{{item.Product_Delivered|get_product_image_one}}" style="height: 50px;"></th>
+                                  <td><a href="{% url 'product_detail:product_detail' item.Product_Delivered.Product_id item.Product_Delivered.Product_slug  item.Year %}">{{item.Product_Delivered}}({{item.Year}})</a></td>
+                                  {% endif %}
+
+                                  {% if item.Product_Cellar %}
+                                  <th><img src="{{item.Product_Cellar|get_product_image_one}}" style="height: 50px;"></th>
+                                  <td><a href="{% url 'product_detail:product_detail' item.Product_Cellar.Product_id item.Product_Cellar.Product_slug  item.Year %}">{{item.Product_Cellar}}({{item.Year}})</a></td>
+                                  {% endif %}
+
+                                  <td>
+                                    {{item.Type}}/({{item.Case_Formate.Bottle}})
+                                  </td>
+                                  <td>${{item.Cost_of_product}}</td>
+                                  <td>{{item.Quentity}}</td>
+                                  <td>${{item.Total_cost}}</td>
+                            
+                                </tr>
+                 {% endfor %}
+                 {% endif %}
+                              </tbody>
+                            </table>
+
+
+                    </div>
+                                       
+                                    
+                            </div><!-- End .card-body -->
+                        </div><!-- End .card -->
+            </div>
+            </div>
+            
+            
+                    </div><!-- End .col-lg-9 -->
+
+                    <aside class="col-md-3">
+                        {% include 'web/user/include/user_sidebar.html' %}
+                    </aside>          
+                </div><!-- End .row -->
+            </div><!-- End .container -->
+
+            <div class="mb-5"></div><!-- margin -->
+        </main>
+{% endblock %}
